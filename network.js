@@ -1,3 +1,7 @@
+function lerp(a, b, alpha) {
+    return a + alpha * (b - a);
+}
+
 class NeuralNetwork {
     constructor(neuronCounts) {
         this.levels = [];
@@ -14,6 +18,19 @@ class NeuralNetwork {
 
         return outputs;
     }// static feedForward(givenInputs, network)
+
+    static mutate(network, amount=1) {
+        network.levels.forEach(level => {
+            for(let i = 0; i < level.biases. length; i++) {
+                level.biases[i] = lerp(level.biases[i], Math.random() * 2 - 1, amount);
+            }
+            for(let i = 0; i < level.weights.length; i++) {
+                for(let j = 0; j < level.weights[i].length; j++) {
+                    level.weights[i][j] = lerp(level.weights[i][j], Math.random() * 2 - 1, amount);
+                }
+            }
+        })
+    }// static mutate
 }// class NeuralNetwork
 
 class Level {
@@ -64,3 +81,48 @@ class Level {
         return level.outputs;
     }// static feedForward(givenInputs, level)
 }// class Level
+
+function trainNetwork(neuronCounts, batchSize = 10, batchAmount = 10, mutationAmount=0.2, trainingData) {
+
+    let networks = Array(batchSize);
+
+    for(let i = 0; i < batchSize; i++) {
+        networks[i] = new NeuralNetwork(neuronCounts);
+    }
+
+    let bestNetwork = 0;
+    let bestFitness = trainingData[0].output.length;
+
+    for(let batch = 0; batch < batchAmount; batch++) {
+        bestNetwork = 0;
+        bestFitness = trainingData[0].output.length;
+        for(let i = 0; i < batchSize; i++) {
+            let fitness = 0;
+            for(let d = 0; d < trainingData.length; d++) {
+                let outputs = NeuralNetwork.feedForward(trainingData[d].input, networks[i]);
+
+                for(let j = 0; j < outputs.length; j++) {
+                    fitness += Math.abs(trainingData[d].output[j] - outputs[j]);
+                }
+
+                fitness /= outputs.length;
+
+            }
+
+            fitness /= trainingData.length;
+
+            if(fitness < bestFitness) {
+                bestNetwork = i;
+                bestFitness = fitness;
+            }
+        }
+
+        for(let i = 0; i < batchSize; i++) {
+            if(i != bestNetwork) {
+                NeuralNetwork.mutate(networks[i], mutationAmount);
+            }
+        }
+    }
+
+    return networks[bestNetwork];
+}// trainNetwork
