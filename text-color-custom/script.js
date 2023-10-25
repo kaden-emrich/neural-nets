@@ -2,13 +2,9 @@ var netStructure = [3, 3, 1];
 var net;
 
 var data = [
-    {
-        input: [1, 1, 1],
-        output: [0]
-    }
+    
 ];
 
-net = trainNetwork(netStructure, 10, 10, 0.2, data);
 
 // const diagramEl = document.getElementById('diagram');
 // diagramEl.innerHTML = brain.utilities.toSVG(net);
@@ -19,8 +15,10 @@ const whiteButton = document.getElementById('white-button');
 const blackButton = document.getElementById('black-button');
 const printButton = document.getElementById('print-button');
 const trainButton = document.getElementById('train-button');
+const testCaseNumDisplay = document.getElementById('test-cases-display');
 let color;
-setRandomColor();
+let guess;
+train();
 
 whiteButton.addEventListener('click', () => {
     chooseColor(1);
@@ -35,9 +33,7 @@ printButton.addEventListener('click', () => {
 });
 
 trainButton.addEventListener('click', () => {
-    net = trainNetwork(netStructure, 100, 1000, 0.2, data);
-    setRandomColor();
-    console.log("Re-trained!");
+    train();
 });
 
 function chooseColor(value) {
@@ -46,6 +42,16 @@ function chooseColor(value) {
         output: [value]
     });
     setRandomColor();
+    testCaseNumDisplay.innerText = data.length;
+}
+
+function train() {
+    colorEl.style.filter = 'brightness(0%)';
+    
+    net = trainNetwork(netStructure, 100, 1000, 0.2, data);
+    setRandomColor();
+    colorEl.style.filter = 'brightness(100%)';
+    console.log("trained");
 }
 
 function print() {
@@ -54,7 +60,7 @@ function print() {
 
 function setRandomColor() {
     color = [Math.random(), Math.random(), Math.random()];
-    const guess = NeuralNetwork.feedForward(color, net)[0];
+    guess = NeuralNetwork.feedForward(color, net)[0];
 
     guessEl.style.color = guess > 0.5 ? '#FFF' : '#000';
     colorEl.style.background = `rgba(${color[0] * 255}, ${color[1] * 255}, ${color[2] * 255})`;

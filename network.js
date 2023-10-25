@@ -84,12 +84,15 @@ class Level {
 
 function trainNetwork(neuronCounts, batchSize = 10, batchAmount = 10, mutationAmount=0.2, trainingData) {
 
+    if(trainingData.length < 1) {
+        return new NeuralNetwork(neuronCounts);
+    }
+
     let networks = Array(batchSize);
 
     for(let i = 0; i < batchSize; i++) {
         networks[i] = new NeuralNetwork(neuronCounts);
     }
-
     let bestNetwork = 0;
     let bestFitness = trainingData[0].output.length;
 
